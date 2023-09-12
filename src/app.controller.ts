@@ -6,18 +6,21 @@ import {
   Delete,
   Param,
   Body,
-  HttpCode
+  HttpCode,
 } from '@nestjs/common';
 import { ReportType, data } from './data';
 import { v4 as uuid } from 'uuid';
+import { AppService } from './app.service';
 
 @Controller('report/:type')
 export class AppController {
+  constructor(private readonly appService: AppService) {}
+
   @Get()
   getAllReports(@Param('type') type: string) {
     const reportType =
       type === 'income' ? ReportType.INCOME : ReportType.EXPENSE;
-    return data.report.filter((report) => report.type === reportType);
+    return this.appService.getAllReports(reportType);
   }
 
   @Get(':id')
@@ -77,7 +80,7 @@ export class AppController {
   deleteReport(@Param('id') id: string) {
     const reportIndex = data.report.findIndex((report) => report.id === id);
 
-    if (reportIndex === -1) return
+    if (reportIndex === -1) return;
     data.report.splice(reportIndex, 1);
     return 'Report deleted';
   }
